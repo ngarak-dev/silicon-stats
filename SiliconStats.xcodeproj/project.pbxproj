@@ -1,0 +1,513 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 56;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		A10000000000000000000001 /* SiliconStatsApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10000000000000000000001 /* SiliconStatsApp.swift */; };
+		A10000000000000000000002 /* TelemetryMonitor.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10000000000000000000002 /* TelemetryMonitor.swift */; };
+		A10000000000000000000003 /* OverlayContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10000000000000000000003 /* OverlayContentView.swift */; };
+		A10000000000000000000004 /* OverlayPanelController.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10000000000000000000004 /* OverlayPanelController.swift */; };
+		A10000000000000000000005 /* TelemetryProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10000000000000000000005 /* TelemetryProvider.swift */; };
+		A10000000000000000000006 /* CompositeTelemetryProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10000000000000000000006 /* CompositeTelemetryProvider.swift */; };
+		A10000000000000000000007 /* CPULoadTelemetryProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10000000000000000000007 /* CPULoadTelemetryProvider.swift */; };
+		A10000000000000000000008 /* MemoryTelemetryProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10000000000000000000008 /* MemoryTelemetryProvider.swift */; };
+		A10000000000000000000009 /* IOReportTelemetryProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10000000000000000000009 /* IOReportTelemetryProvider.swift */; };
+		A1000000000000000000000A /* ThermalStateTelemetryProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1000000000000000000000A /* ThermalStateTelemetryProvider.swift */; };
+		A1000000000000000000000B /* FPSProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1000000000000000000000B /* FPSProvider.swift */; };
+		A1000000000000000000000C /* DisplayLinkFPSProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1000000000000000000000C /* DisplayLinkFPSProvider.swift */; };
+		A1000000000000000000000D /* ScreenCaptureFPSProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1000000000000000000000D /* ScreenCaptureFPSProvider.swift */; };
+		A1000000000000000000000E /* SettingsStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1000000000000000000000E /* SettingsStore.swift */; };
+		A1000000000000000000000F /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1000000000000000000000F /* SettingsView.swift */; };
+		A10000000000000000000010 /* PerformanceSnapshot.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10000000000000000000010 /* PerformanceSnapshot.swift */; };
+		A10000000000000000000011 /* AppSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10000000000000000000011 /* AppSettings.swift */; };
+		A10000000000000000000012 /* MetricAvailability.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10000000000000000000012 /* MetricAvailability.swift */; };
+		A10000000000000000000013 /* MetricFormatter.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10000000000000000000013 /* MetricFormatter.swift */; };
+		A10000000000000000000014 /* UnitConversion.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10000000000000000000014 /* UnitConversion.swift */; };
+		A10000000000000000000015 /* FPSCalculator.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10000000000000000000015 /* FPSCalculator.swift */; };
+		A10000000000000000000016 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = B10000000000000000000016 /* Assets.xcassets */; };
+		A10000000000000000000017 /* MetricFormatterTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10000000000000000000017 /* MetricFormatterTests.swift */; };
+		A10000000000000000000018 /* PerformanceSnapshotTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10000000000000000000018 /* PerformanceSnapshotTests.swift */; };
+		A10000000000000000000019 /* FPSCalculationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10000000000000000000019 /* FPSCalculationTests.swift */; };
+		A1000000000000000000001A /* SettingsPersistenceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1000000000000000000001A /* SettingsPersistenceTests.swift */; };
+		A1000000000000000000001B /* UnitConversionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1000000000000000000001B /* UnitConversionTests.swift */; };
+		A1000000000000000000001C /* IOReportProviderTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1000000000000000000001C /* IOReportProviderTests.swift */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		C10000000000000000000001 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = D10000000000000000000001 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = E10000000000000000000001;
+			remoteInfo = SiliconStats;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXFileReference section */
+		B10000000000000000000001 /* SiliconStatsApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SiliconStatsApp.swift; sourceTree = "<group>"; };
+		B10000000000000000000002 /* TelemetryMonitor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TelemetryMonitor.swift; sourceTree = "<group>"; };
+		B10000000000000000000003 /* OverlayContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OverlayContentView.swift; sourceTree = "<group>"; };
+		B10000000000000000000004 /* OverlayPanelController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OverlayPanelController.swift; sourceTree = "<group>"; };
+		B10000000000000000000005 /* TelemetryProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TelemetryProvider.swift; sourceTree = "<group>"; };
+		B10000000000000000000006 /* CompositeTelemetryProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CompositeTelemetryProvider.swift; sourceTree = "<group>"; };
+		B10000000000000000000007 /* CPULoadTelemetryProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CPULoadTelemetryProvider.swift; sourceTree = "<group>"; };
+		B10000000000000000000008 /* MemoryTelemetryProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MemoryTelemetryProvider.swift; sourceTree = "<group>"; };
+		B10000000000000000000009 /* IOReportTelemetryProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IOReportTelemetryProvider.swift; sourceTree = "<group>"; };
+		B1000000000000000000000A /* ThermalStateTelemetryProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ThermalStateTelemetryProvider.swift; sourceTree = "<group>"; };
+		B1000000000000000000000B /* FPSProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FPSProvider.swift; sourceTree = "<group>"; };
+		B1000000000000000000000C /* DisplayLinkFPSProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DisplayLinkFPSProvider.swift; sourceTree = "<group>"; };
+		B1000000000000000000000D /* ScreenCaptureFPSProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScreenCaptureFPSProvider.swift; sourceTree = "<group>"; };
+		B1000000000000000000000E /* SettingsStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsStore.swift; sourceTree = "<group>"; };
+		B1000000000000000000000F /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
+		B10000000000000000000010 /* PerformanceSnapshot.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PerformanceSnapshot.swift; sourceTree = "<group>"; };
+		B10000000000000000000011 /* AppSettings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppSettings.swift; sourceTree = "<group>"; };
+		B10000000000000000000012 /* MetricAvailability.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MetricAvailability.swift; sourceTree = "<group>"; };
+		B10000000000000000000013 /* MetricFormatter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MetricFormatter.swift; sourceTree = "<group>"; };
+		B10000000000000000000014 /* UnitConversion.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UnitConversion.swift; sourceTree = "<group>"; };
+		B10000000000000000000015 /* FPSCalculator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FPSCalculator.swift; sourceTree = "<group>"; };
+		B10000000000000000000016 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		B10000000000000000000017 /* MetricFormatterTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MetricFormatterTests.swift; sourceTree = "<group>"; };
+		B10000000000000000000018 /* PerformanceSnapshotTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PerformanceSnapshotTests.swift; sourceTree = "<group>"; };
+		B10000000000000000000019 /* FPSCalculationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FPSCalculationTests.swift; sourceTree = "<group>"; };
+		B1000000000000000000001A /* SettingsPersistenceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsPersistenceTests.swift; sourceTree = "<group>"; };
+		B1000000000000000000001B /* UnitConversionTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UnitConversionTests.swift; sourceTree = "<group>"; };
+		B1000000000000000000001C /* IOReportProviderTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IOReportProviderTests.swift; sourceTree = "<group>"; };
+		B1000000000000000000001D /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		B1000000000000000000001E /* SiliconStats.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = SiliconStats.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		B1000000000000000000001F /* SiliconStatsTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = SiliconStatsTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		B10000000000000000000020 /* SiliconStats.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = SiliconStats.entitlements; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		F10000000000000000000001 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		F10000000000000000000002 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		G10000000000000000000001 = {
+			isa = PBXGroup;
+			children = (
+				G10000000000000000000002 /* SiliconStats */,
+				G10000000000000000000003 /* SiliconStatsTests */,
+				G10000000000000000000004 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		G10000000000000000000002 /* SiliconStats */ = {
+			isa = PBXGroup;
+			children = (
+				G10000000000000000000005 /* App */,
+				G10000000000000000000006 /* Overlay */,
+				G10000000000000000000007 /* Telemetry */,
+				G10000000000000000000008 /* FPS */,
+				G10000000000000000000009 /* Settings */,
+				G1000000000000000000000A /* Models */,
+				G1000000000000000000000B /* Utilities */,
+				G1000000000000000000000C /* Resources */,
+				B10000000000000000000020 /* SiliconStats.entitlements */,
+			);
+			path = SiliconStats;
+			sourceTree = "<group>";
+		};
+		G10000000000000000000003 /* SiliconStatsTests */ = {
+			isa = PBXGroup;
+			children = (
+				B10000000000000000000017 /* MetricFormatterTests.swift */,
+				B10000000000000000000018 /* PerformanceSnapshotTests.swift */,
+				B10000000000000000000019 /* FPSCalculationTests.swift */,
+				B1000000000000000000001A /* SettingsPersistenceTests.swift */,
+				B1000000000000000000001B /* UnitConversionTests.swift */,
+				B1000000000000000000001C /* IOReportProviderTests.swift */,
+			);
+			path = SiliconStatsTests;
+			sourceTree = "<group>";
+		};
+		G10000000000000000000004 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				B1000000000000000000001E /* SiliconStats.app */,
+				B1000000000000000000001F /* SiliconStatsTests.xctest */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		G10000000000000000000005 /* App */ = {
+			isa = PBXGroup;
+			children = (
+				B10000000000000000000001 /* SiliconStatsApp.swift */,
+				B10000000000000000000002 /* TelemetryMonitor.swift */,
+			);
+			path = App;
+			sourceTree = "<group>";
+		};
+		G10000000000000000000006 /* Overlay */ = {
+			isa = PBXGroup;
+			children = (
+				B10000000000000000000003 /* OverlayContentView.swift */,
+				B10000000000000000000004 /* OverlayPanelController.swift */,
+			);
+			path = Overlay;
+			sourceTree = "<group>";
+		};
+		G10000000000000000000007 /* Telemetry */ = {
+			isa = PBXGroup;
+			children = (
+				B10000000000000000000005 /* TelemetryProvider.swift */,
+				B10000000000000000000006 /* CompositeTelemetryProvider.swift */,
+				B10000000000000000000007 /* CPULoadTelemetryProvider.swift */,
+				B10000000000000000000008 /* MemoryTelemetryProvider.swift */,
+				B10000000000000000000009 /* IOReportTelemetryProvider.swift */,
+				B1000000000000000000000A /* ThermalStateTelemetryProvider.swift */,
+			);
+			path = Telemetry;
+			sourceTree = "<group>";
+		};
+		G10000000000000000000008 /* FPS */ = {
+			isa = PBXGroup;
+			children = (
+				B1000000000000000000000B /* FPSProvider.swift */,
+				B1000000000000000000000C /* DisplayLinkFPSProvider.swift */,
+				B1000000000000000000000D /* ScreenCaptureFPSProvider.swift */,
+			);
+			path = FPS;
+			sourceTree = "<group>";
+		};
+		G10000000000000000000009 /* Settings */ = {
+			isa = PBXGroup;
+			children = (
+				B1000000000000000000000E /* SettingsStore.swift */,
+				B1000000000000000000000F /* SettingsView.swift */,
+			);
+			path = Settings;
+			sourceTree = "<group>";
+		};
+		G1000000000000000000000A /* Models */ = {
+			isa = PBXGroup;
+			children = (
+				B10000000000000000000010 /* PerformanceSnapshot.swift */,
+				B10000000000000000000011 /* AppSettings.swift */,
+				B10000000000000000000012 /* MetricAvailability.swift */,
+			);
+			path = Models;
+			sourceTree = "<group>";
+		};
+		G1000000000000000000000B /* Utilities */ = {
+			isa = PBXGroup;
+			children = (
+				B10000000000000000000013 /* MetricFormatter.swift */,
+				B10000000000000000000014 /* UnitConversion.swift */,
+				B10000000000000000000015 /* FPSCalculator.swift */,
+			);
+			path = Utilities;
+			sourceTree = "<group>";
+		};
+		G1000000000000000000000C /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+				B1000000000000000000001D /* Info.plist */,
+				B10000000000000000000016 /* Assets.xcassets */,
+			);
+			path = Resources;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		E10000000000000000000001 /* SiliconStats */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = H10000000000000000000001 /* Build configuration list for PBXNativeTarget "SiliconStats" */;
+			buildPhases = (
+				I10000000000000000000001 /* Sources */,
+				F10000000000000000000001 /* Frameworks */,
+				J10000000000000000000001 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = SiliconStats;
+			productName = SiliconStats;
+			productReference = B1000000000000000000001E /* SiliconStats.app */;
+			productType = "com.apple.product-type.application";
+		};
+		E10000000000000000000002 /* SiliconStatsTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = H10000000000000000000002 /* Build configuration list for PBXNativeTarget "SiliconStatsTests" */;
+			buildPhases = (
+				I10000000000000000000002 /* Sources */,
+				F10000000000000000000002 /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				C10000000000000000000002 /* PBXTargetDependency */,
+			);
+			name = SiliconStatsTests;
+			productName = SiliconStatsTests;
+			productReference = B1000000000000000000001F /* SiliconStatsTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		D10000000000000000000001 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = 1;
+				LastSwiftUpdateCheck = 1500;
+				LastUpgradeCheck = 1500;
+				TargetAttributes = {
+					E10000000000000000000001 = {
+						CreatedOnToolsVersion = 15.0;
+					};
+					E10000000000000000000002 = {
+						CreatedOnToolsVersion = 15.0;
+						TestTargetID = E10000000000000000000001;
+					};
+				};
+			};
+			buildConfigurationList = H10000000000000000000003 /* Build configuration list for PBXProject "SiliconStats" */;
+			compatibilityVersion = "Xcode 14.0";
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = G10000000000000000000001;
+			productRefGroup = G10000000000000000000004 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				E10000000000000000000001 /* SiliconStats */,
+				E10000000000000000000002 /* SiliconStatsTests */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		J10000000000000000000001 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				A10000000000000000000016 /* Assets.xcassets in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		I10000000000000000000001 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				A10000000000000000000001 /* SiliconStatsApp.swift in Sources */,
+				A10000000000000000000002 /* TelemetryMonitor.swift in Sources */,
+				A10000000000000000000003 /* OverlayContentView.swift in Sources */,
+				A10000000000000000000004 /* OverlayPanelController.swift in Sources */,
+				A10000000000000000000005 /* TelemetryProvider.swift in Sources */,
+				A10000000000000000000006 /* CompositeTelemetryProvider.swift in Sources */,
+				A10000000000000000000007 /* CPULoadTelemetryProvider.swift in Sources */,
+				A10000000000000000000008 /* MemoryTelemetryProvider.swift in Sources */,
+				A10000000000000000000009 /* IOReportTelemetryProvider.swift in Sources */,
+				A1000000000000000000000A /* ThermalStateTelemetryProvider.swift in Sources */,
+				A1000000000000000000000B /* FPSProvider.swift in Sources */,
+				A1000000000000000000000C /* DisplayLinkFPSProvider.swift in Sources */,
+				A1000000000000000000000D /* ScreenCaptureFPSProvider.swift in Sources */,
+				A1000000000000000000000E /* SettingsStore.swift in Sources */,
+				A1000000000000000000000F /* SettingsView.swift in Sources */,
+				A10000000000000000000010 /* PerformanceSnapshot.swift in Sources */,
+				A10000000000000000000011 /* AppSettings.swift in Sources */,
+				A10000000000000000000012 /* MetricAvailability.swift in Sources */,
+				A10000000000000000000013 /* MetricFormatter.swift in Sources */,
+				A10000000000000000000014 /* UnitConversion.swift in Sources */,
+				A10000000000000000000015 /* FPSCalculator.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		I10000000000000000000002 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				A10000000000000000000017 /* MetricFormatterTests.swift in Sources */,
+				A10000000000000000000018 /* PerformanceSnapshotTests.swift in Sources */,
+				A10000000000000000000019 /* FPSCalculationTests.swift in Sources */,
+				A1000000000000000000001A /* SettingsPersistenceTests.swift in Sources */,
+				A1000000000000000000001B /* UnitConversionTests.swift in Sources */,
+				A1000000000000000000001C /* IOReportProviderTests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		C10000000000000000000002 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = E10000000000000000000001 /* SiliconStats */;
+			targetProxy = C10000000000000000000001 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin XCBuildConfiguration section */
+		K10000000000000000000001 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_TESTABILITY = YES;
+				GCC_DYNAMIC_NO_PIC = NO;
+				MACOSX_DEPLOYMENT_TARGET = 13.0;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = macosx;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 5.0;
+			};
+			name = Debug;
+		};
+		K10000000000000000000002 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				MACOSX_DEPLOYMENT_TARGET = 13.0;
+				SDKROOT = macosx;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_VERSION = 5.0;
+			};
+			name = Release;
+		};
+		K10000000000000000000003 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = SiliconStats/SiliconStats.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				CURRENT_PROJECT_VERSION = 1;
+				ENABLE_HARDENED_RUNTIME = YES;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = SiliconStats/Resources/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				MARKETING_VERSION = 1.0.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.siliconstats.app;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+			};
+			name = Debug;
+		};
+		K10000000000000000000004 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = SiliconStats/SiliconStats.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				CURRENT_PROJECT_VERSION = 1;
+				ENABLE_HARDENED_RUNTIME = YES;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = SiliconStats/Resources/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				MARKETING_VERSION = 1.0.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.siliconstats.app;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+			};
+			name = Release;
+		};
+		K10000000000000000000005 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 13.0;
+				MARKETING_VERSION = 1.0.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.siliconstats.app.tests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_VERSION = 5.0;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/SiliconStats.app/Contents/MacOS/SiliconStats";
+			};
+			name = Debug;
+		};
+		K10000000000000000000006 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 13.0;
+				MARKETING_VERSION = 1.0.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.siliconstats.app.tests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_VERSION = 5.0;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/SiliconStats.app/Contents/MacOS/SiliconStats";
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		H10000000000000000000001 /* Build configuration list for PBXNativeTarget "SiliconStats" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				K10000000000000000000003 /* Debug */,
+				K10000000000000000000004 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		H10000000000000000000002 /* Build configuration list for PBXNativeTarget "SiliconStatsTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				K10000000000000000000005 /* Debug */,
+				K10000000000000000000006 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		H10000000000000000000003 /* Build configuration list for PBXProject "SiliconStats" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				K10000000000000000000001 /* Debug */,
+				K10000000000000000000002 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = D10000000000000000000001 /* Project object */;
+}
