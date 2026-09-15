@@ -3,8 +3,9 @@ import XCTest
 
 final class SettingsPersistenceTests: XCTestCase {
     func testDefaultSettingsRoundTrip() throws {
-        let suite = UserDefaults(suiteName: "SiliconStatsTests.\(UUID().uuidString)")!
-        defer { suite.removePersistentDomain(forName: suite.suiteName!) }
+        let suiteName = "SiliconStatsTests.\(UUID().uuidString)"
+        let suite = UserDefaults(suiteName: suiteName)!
+        defer { suite.removePersistentDomain(forName: suiteName) }
 
         let store = SettingsStore(defaults: suite)
         XCTAssertEqual(store.settings, .default)
@@ -24,8 +25,9 @@ final class SettingsPersistenceTests: XCTestCase {
     }
 
     func testResetToDefaults() {
-        let suite = UserDefaults(suiteName: "SiliconStatsTests.\(UUID().uuidString)")!
-        defer { suite.removePersistentDomain(forName: suite.suiteName!) }
+        let suiteName = "SiliconStatsTests.\(UUID().uuidString)"
+        let suite = UserDefaults(suiteName: suiteName)!
+        defer { suite.removePersistentDomain(forName: suiteName) }
 
         let store = SettingsStore(defaults: suite)
         store.update { $0.showOverlay = false }
@@ -34,7 +36,10 @@ final class SettingsPersistenceTests: XCTestCase {
     }
 
     func testClearPersistence() {
-        let suite = UserDefaults(suiteName: "SiliconStatsTests.\(UUID().uuidString)")!
+        let suiteName = "SiliconStatsTests.\(UUID().uuidString)"
+        let suite = UserDefaults(suiteName: suiteName)!
+        defer { suite.removePersistentDomain(forName: suiteName) }
+
         let store = SettingsStore(defaults: suite)
         store.update { $0.clickThrough = true }
         store.clearPersistence()
