@@ -1,0 +1,105 @@
+name: Release DMG
+
+# Builds SiliconStats-*.dmg on version tags and attaches it to a GitHub Release.
+# Tags: v1.0.0, v1.2.3-beta.1, etc.
+
+on:
+  push:
+    tags:
+      - "v*"
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "Version label for the DMG filename (e.g. 1.0.0). Leave empty to use the ref name."
+        required: false
+        default: ""
+
+permissions:
+  contents: write
+
+concurrency:
+  group: release-dmg-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build-dmg:
+    name: Build macOS DMG
+    runs-on: macos-14
+    timeout-minutes: 45
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Select Xcode
+        run: |
+          sudo xcode-select -s /Applications/Xcode.app/Contents/Developer
+          xcodebuild -version
+          swift --version
+
+      - name: Resolve version
+        id: ver
+        run: |
+          if [[ -n "${{ github.event.inputs.version }}" ]]; then
+            RAW="${{ github.event.inputs.version }}"
+          else
+            RAW="${GITHUB_REF_NAME}"
+          fi
+          # Accept v1.2.3 or 1.2.3
+          NUM="${RAW#v}"
+          echo "raw=$RAW" >> "$GITHUB_OUTPUT"
+          echo "num=$NUM" >> "$GITHUB_OUTPUT"
+          echo "Resolved version: $NUM"
+
+      - name: Build DMG
+        id: dmg
+        env:
+          VERSION: ${{ steps.ver.outputs.num }}
+          # Unsigned / ad-hoc CI artifact. For Developer ID + notarization, set
+          # repository secrets DEVELOPMENT_TEAM + import signing certs, then
+          # export CODE_SIGN_IDENTITY / DEVELOPMENT_TEAM here.
+        run: |
+          chmod +x scripts/build-dmg.sh
+          ./scripts/build-dmg.sh
+
+      - name: Upload DMG artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: SiliconStats-${{ steps.ver.outputs.num }}-dmg
+          path: dist/SiliconStats-${{ steps.ver.outputs.num }}.dmg
+          if-no-files-found: error
+
+      - name: Create GitHub Release
+        if: startsWith(github.ref, 'refs/tags/')
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          TAG="${GITHUB_REF_NAME}"
+          DMG="dist/SiliconStats-${{ steps.ver.outputs.num }}.dmg"
+          NOTES="$(cat <<EOF
+          ## Silicon Stats ${{ steps.ver.outputs.num }}
+
+          macOS menu-bar Apple Silicon HUD.
+
+          ### Install
+          1. Download \`$(basename "$DMG")\`
+          2. Open the DMG and drag **SiliconStats** to Applications
+          3. On first launch, allow the app under **System Settings → Privacy & Security** if Gatekeeper prompts (CI builds are ad-hoc signed unless Developer ID secrets are configured)
+
+          ### Notes
+          - Built on \`macos-14\` via GitHub Actions
+          - See \`Docs/TELEMETRY.md\` for which metrics are real vs stubbed
+          EOF
+          )"
+          if gh release view "$TAG" >/dev/null 2>&1; then
+            gh release upload "$TAG" "$DMG" --clobber
+          else
+            gh release create "$TAG" "$DMG" \
+              --title "Silicon Stats ${{ steps.ver.outputs.num }}" \
+              --notes "$NOTES"
+          fi
+
+  # Optional smoke: run unit tests on the same runner before packaging is skipped
+  # for tag speed — enable by uncommenting a needs: dependency if desired.
