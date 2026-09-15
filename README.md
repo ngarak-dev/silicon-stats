@@ -69,6 +69,19 @@ Details: [`Docs/TELEMETRY.md`](Docs/TELEMETRY.md).
 - SwiftUI settings (General / Metrics / Appearance)
 - Telemetry polling separated from UI observation
 
+## Releases (DMG via tags)
+
+On a public GitHub repo with Actions enabled:
+
+```bash
+git tag v1.0.0
+git push origin v1.0.0
+```
+
+GitHub Actions (`.github/workflows/release-dmg.yml`) builds `SiliconStats-1.0.0.dmg` on `macos-14` and attaches it to the GitHub Release. Details: [`Docs/RELEASES.md`](Docs/RELEASES.md).
+
+Locally on a Mac: `./scripts/build-dmg.sh` → `dist/SiliconStats-<version>.dmg`.
+
 ## License
 
 MIT — see [LICENSE](LICENSE).
