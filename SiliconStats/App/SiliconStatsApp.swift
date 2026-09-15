@@ -28,7 +28,9 @@ final class SiliconStatsApp: NSObject, NSApplicationDelegate {
         overlay = OverlayPanelController(settingsStore: settingsStore)
 
         constructMenu()
-        monitor.start()
+        Task { @MainActor in
+            self.monitor.start()
+        }
 
         monitor.$snapshot
             .receive(on: RunLoop.main)
@@ -50,7 +52,9 @@ final class SiliconStatsApp: NSObject, NSApplicationDelegate {
     }
 
     func applicationWillTerminate(_ notification: Notification) {
-        monitor.stop()
+        Task { @MainActor in
+            self.monitor.stop()
+        }
     }
 
     private func constructMenu() {
@@ -81,26 +85,30 @@ final class SiliconStatsApp: NSObject, NSApplicationDelegate {
     }
 
     @objc private func openSettings() {
-        if settingsWindow == nil {
-            let root = SettingsView(store: settingsStore, availability: monitor.availability)
-            let hosting = NSHostingController(rootView: root)
-            let window = NSWindow(contentViewController: hosting)
-            window.title = "Silicon Stats"
-            window.styleMask = [.titled, .closable, .miniaturizable]
-            window.setContentSize(NSSize(width: 440, height: 400))
-            window.center()
-            settingsWindow = window
+        Task { @MainActor in
+            if self.settingsWindow == nil {
+                let root = SettingsView(store: self.settingsStore, availability: self.monitor.availability)
+                let hosting = NSHostingController(rootView: root)
+                let window = NSWindow(contentViewController: hosting)
+                window.title = "Silicon Stats"
+                window.styleMask = [.titled, .closable, .miniaturizable]
+                window.setContentSize(NSSize(width: 440, height: 400))
+                window.center()
+                self.settingsWindow = window
+            }
+            // Refresh availability when opening.
+            let root = SettingsView(store: self.settingsStore, availability: self.monitor.availability)
+            self.settingsWindow?.contentViewController = NSHostingController(rootView: root)
+            NSApp.setActivationPolicy(self.settingsStore.settings.showDockIcon ? .regular : .accessory)
+            self.settingsWindow?.makeKeyAndOrderFront(nil)
+            NSApp.activate(ignoringOtherApps: true)
         }
-        // Refresh availability when opening.
-        let root = SettingsView(store: settingsStore, availability: monitor.availability)
-        settingsWindow?.contentViewController = NSHostingController(rootView: root)
-        NSApp.setActivationPolicy(settingsStore.settings.showDockIcon ? .regular : .accessory)
-        settingsWindow?.makeKeyAndOrderFront(nil)
-        NSApp.activate(ignoringOtherApps: true)
     }
 
     @objc private func refreshNow() {
-        monitor.refreshNow()
+        Task { @MainActor in
+            self.monitor.refreshNow()
+        }
     }
 
     @objc private func quit() {

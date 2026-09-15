@@ -64,8 +64,9 @@ public final class DisplayLinkFPSProvider: FPSProvider, @unchecked Sendable {
         status = .available
 
         let period = CVDisplayLinkGetNominalOutputVideoRefreshPeriod(newLink)
-        if period.timescale != 0 {
-            let hz = Double(period.timescale) / Double(period.value)
+        // CVTime uses timeValue / timeScale (not value / timescale).
+        if period.timeScale != 0 {
+            let hz = Double(period.timeScale) / Double(period.timeValue)
             lock.lock()
             refreshHz = hz
             lock.unlock()

@@ -47,8 +47,9 @@ public final class TelemetryMonitor: ObservableObject {
     private func restartTimer() {
         timer?.invalidate()
         let interval = max(0.25, Double(settingsStore.settings.telemetryIntervalMilliseconds) / 1000.0)
+        // Timer is scheduled on the main RunLoop; hop explicitly for Swift concurrency.
         let timer = Timer.scheduledTimer(withTimeInterval: interval, repeats: true) { [weak self] _ in
-            Task { @MainActor in
+            Task { @MainActor [weak self] in
                 self?.refreshNow()
             }
         }
