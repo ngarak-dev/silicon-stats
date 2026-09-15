@@ -41,4 +41,20 @@ final class MetricFormatterTests: XCTestCase {
         XCTAssertEqual(MetricFormatter.memoryUsedGigabytes(usedBytes: 1_073_741_824), "1GB")
         XCTAssertEqual(MetricFormatter.memoryUsedGigabytes(usedBytes: 18_874_368_000), "17.6GB")
     }
+
+    func testMemoryBreakdownLabeled() {
+        let parts = MetricFormatter.memoryBreakdown(
+            usedBytes: 1_073_741_824,
+            cachedBytes: 2_147_483_648,
+            freeBytes: 536_870_912
+        )
+        XCTAssertEqual(parts, ["U1GB", "C2GB", "F0.5GB"])
+    }
+
+    func testMemoryBreakdownAllNil() {
+        XCTAssertEqual(
+            MetricFormatter.memoryBreakdown(usedBytes: nil, cachedBytes: nil, freeBytes: nil),
+            ["--"]
+        )
+    }
 }

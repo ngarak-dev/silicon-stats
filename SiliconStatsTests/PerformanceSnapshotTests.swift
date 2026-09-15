@@ -27,4 +27,18 @@ final class PerformanceSnapshotTests: XCTestCase {
         XCTAssertNil(merged.gpuPowerWatts)
         XCTAssertNil(merged.framesPerSecond)
     }
+
+    func testMergingPerCoreAndMemoryBreakdown() {
+        let base = PerformanceSnapshot(memoryUsedBytes: 1)
+        let other = PerformanceSnapshot(
+            perCoreCPUUtilizationPercent: [10, 20],
+            memoryCachedBytes: 2,
+            memoryFreeBytes: 3
+        )
+        let merged = base.merging(other)
+        XCTAssertEqual(merged.perCoreCPUUtilizationPercent, [10, 20])
+        XCTAssertEqual(merged.memoryUsedBytes, 1)
+        XCTAssertEqual(merged.memoryCachedBytes, 2)
+        XCTAssertEqual(merged.memoryFreeBytes, 3)
+    }
 }

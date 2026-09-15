@@ -1,6 +1,6 @@
 # Silicon Stats
 
-Native macOS menu-bar HUD for Apple Silicon performance monitoring — floating black pill overlay for CPU, GPU, and FPS.
+Native macOS menu-bar HUD for Apple Silicon performance monitoring — floating black pill overlay for per-core CPU, memory used/cached/free, GPU sensors (best-effort), and FPS.
 
 Visual target: horizontal capsule with **CPU** (blue) · **GPU** (cyan-gray) · **FPS** (mint), white values, ~85–90% opaque black pill.
 
@@ -54,10 +54,10 @@ Docs/TELEMETRY.md           Real vs stubbed metrics + private API notes
 
 | Shown on pill (default) | Source in this build |
 |---|---|
-| CPU % | Public Mach host CPU load — **live** |
-| MEM | Public Mach VM stats — **live** |
+| CPU % + per-core bars | Public Mach `host_processor_info` — **live** |
+| MEM U / C / F | Public Mach VM stats (used / cached / free) — **live** |
 | FPS | `CVDisplayLink` local cadence when running on macOS (not other-apps' game FPS) |
-| CPU/GPU °C / W | Private IOReport path **off by default** (enable in Settings; still gated until validated) |
+| CPU/GPU °C / W | Private IOReport via `dlsym` — **off by default**; enable in Settings → Metrics |
 
 Details: [`Docs/TELEMETRY.md`](Docs/TELEMETRY.md).
 

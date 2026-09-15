@@ -8,6 +8,8 @@ public enum OverlayPalette {
     public static let fpsLabel = Color(red: 0.40, green: 0.86, blue: 0.62)      // mint green
     public static let value = Color.white
     public static let pillFill = Color.black
+    public static let coreBarFill = Color(red: 0.35, green: 0.62, blue: 0.95)
+    public static let coreBarTrack = Color.white.opacity(0.18)
 }
 
 /// Single metric cluster: colored label + white values (e.g. `CPU 42%`).
@@ -67,6 +69,35 @@ public struct MetricGroupView: View {
     }
 }
 
+/// Vertical mini-bars for each logical CPU core (0…100%).
+public struct PerCoreCPUBarsView: View {
+    public let cores: [Double]
+    public let scale: CGFloat
+
+    public init(cores: [Double], scale: CGFloat = 1) {
+        self.cores = cores
+        self.scale = scale
+    }
+
+    public var body: some View {
+        HStack(alignment: .bottom, spacing: max(1.5 * scale, 1)) {
+            ForEach(Array(cores.enumerated()), id: \.offset) { _, percent in
+                let clamped = min(max(percent, 0), 100) / 100.0
+                ZStack(alignment: .bottom) {
+                    RoundedRectangle(cornerRadius: 1 * scale, style: .continuous)
+                        .fill(OverlayPalette.coreBarTrack)
+                    RoundedRectangle(cornerRadius: 1 * scale, style: .continuous)
+                        .fill(OverlayPalette.coreBarFill)
+                        .frame(height: max(2 * scale, CGFloat(clamped) * 14 * scale))
+                }
+                .frame(width: max(3 * scale, 3), height: 14 * scale)
+            }
+        }
+        .accessibilityLabel("Per-core CPU")
+        .accessibilityValue(cores.map { "\(Int($0.rounded()))%" }.joined(separator: ", "))
+    }
+}
+
 /// Horizontal black pill HUD: CPU · MEM · GPU · FPS (groups hide when empty).
 public struct OverlayContentView: View {
     public let snapshot: PerformanceSnapshot
@@ -78,14 +109,19 @@ public struct OverlayContentView: View {
     }
 
     public var body: some View {
-        HStack(spacing: 18 * settings.overlayScale) {
+        HStack(alignment: .center, spacing: 18 * settings.overlayScale) {
             if showCPU {
-                MetricGroupView(
-                    label: "CPU",
-                    labelColor: OverlayPalette.cpuLabel,
-                    values: cpuValues,
-                    scale: settings.overlayScale
-                )
+                VStack(alignment: .leading, spacing: 4 * settings.overlayScale) {
+                    MetricGroupView(
+                        label: "CPU",
+                        labelColor: OverlayPalette.cpuLabel,
+                        values: cpuValues,
+                        scale: settings.overlayScale
+                    )
+                    if showPerCoreBars, let cores = snapshot.perCoreCPUUtilizationPercent, !cores.isEmpty {
+                        PerCoreCPUBarsView(cores: cores, scale: settings.overlayScale)
+                    }
+                }
             }
             if showMemory {
                 MetricGroupView(
@@ -115,9 +151,13 @@ public struct OverlayContentView: View {
         .padding(.horizontal, 16 * settings.overlayScale)
         .padding(.vertical, 8 * settings.overlayScale)
         .background(
-            Capsule(style: .continuous)
+            RoundedRectangle(cornerRadius: 18 * settings.overlayScale, style: .continuous)
                 .fill(OverlayPalette.pillFill.opacity(settings.overlayOpacity))
         )
+    }
+
+    private var showPerCoreBars: Bool {
+        settings.showPerCoreCPU && settings.showCPUUtilization
     }
 
     private var showCPU: Bool {
@@ -125,7 +165,8 @@ public struct OverlayContentView: View {
             return false
         }
         if settings.unavailableDisplay == .hide,
-           cpuValues.allSatisfy({ $0 == MetricFormatter.unavailablePlaceholder }) {
+           cpuValues.allSatisfy({ $0 == MetricFormatter.unavailablePlaceholder }),
+           !(showPerCoreBars && !(snapshot.perCoreCPUUtilizationPercent ?? []).isEmpty) {
             return false
         }
         return true
@@ -179,7 +220,14 @@ public struct OverlayContentView: View {
     }
 
     private var memoryValues: [String] {
-        [MetricFormatter.memoryUsedGigabytes(usedBytes: snapshot.memoryUsedBytes)]
+        if settings.showMemoryBreakdown {
+            return MetricFormatter.memoryBreakdown(
+                usedBytes: snapshot.memoryUsedBytes,
+                cachedBytes: snapshot.memoryCachedBytes,
+                freeBytes: snapshot.memoryFreeBytes
+            )
+        }
+        return [MetricFormatter.memoryUsedGigabytes(usedBytes: snapshot.memoryUsedBytes)]
     }
 
     private var gpuValues: [String] {
@@ -206,7 +254,10 @@ public struct OverlayContentView: View {
     OverlayContentView(
         snapshot: PerformanceSnapshot(
             cpuUtilizationPercent: 42,
+            perCoreCPUUtilizationPercent: [12, 88, 45, 10, 22, 67, 5, 91],
             memoryUsedBytes: 18_000_000_000,
+            memoryCachedBytes: 4_200_000_000,
+            memoryFreeBytes: 2_100_000_000,
             memoryTotalBytes: 36_000_000_000,
             framesPerSecond: 120
         ),
@@ -230,6 +281,7 @@ public struct OverlayContentView: View {
             s.showCPUTemperature = true
             s.showCPUPower = true
             s.showCPUUtilization = false
+            s.showPerCoreCPU = false
             s.showGPUTemperature = true
             s.showGPUPower = true
             s.showMemory = false

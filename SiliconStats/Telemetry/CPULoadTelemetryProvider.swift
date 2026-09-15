@@ -3,13 +3,11 @@ import Foundation
 import Darwin
 #endif
 
-/// CPU utilization via public Mach host APIs (`host_processor_info`).
+/// Aggregate + per-core CPU utilization via public Mach `host_processor_info`.
 ///
 /// - API: `host_processor_info` / `PROCESSOR_CPU_LOAD_INFO` (public Darwin)
-/// - macOS: all modern versions
-/// - Chips: Intel + Apple Silicon
 /// - Permissions: none
-/// - Temperatures / package power are **not** provided here (see IOReport provider).
+/// - Temperatures / package power are **not** provided here (see IOReport).
 public final class CPULoadTelemetryProvider: TelemetryProvider, @unchecked Sendable {
     public let id = "cpu-load"
     public let displayName = "CPU Load (Mach)"
@@ -20,50 +18,87 @@ public final class CPULoadTelemetryProvider: TelemetryProvider, @unchecked Senda
         return a
     }
 
-    private var previous: host_cpu_load_info?
+    private var previousTicks: [[UInt32]]?
     private let lock = NSLock()
 
     public init() {}
 
     public func sample() -> PerformanceSnapshot {
-        guard let load = Self.readCPULoad() else {
+        guard let current = Self.readPerCoreTicks() else {
             return PerformanceSnapshot()
         }
 
         lock.lock()
-        let prior = previous
-        previous = load
+        let prior = previousTicks
+        previousTicks = current
         lock.unlock()
 
-        guard let prior else {
+        guard let prior, prior.count == current.count, !prior.isEmpty else {
             return PerformanceSnapshot()
         }
 
-        let user = Double(load.cpu_ticks.0 &- prior.cpu_ticks.0)
-        let system = Double(load.cpu_ticks.1 &- prior.cpu_ticks.1)
-        let idle = Double(load.cpu_ticks.2 &- prior.cpu_ticks.2)
-        let nice = Double(load.cpu_ticks.3 &- prior.cpu_ticks.3)
-        let total = user + system + idle + nice
-        guard total > 0 else {
-            return PerformanceSnapshot()
+        var perCore: [Double] = []
+        perCore.reserveCapacity(current.count)
+        var busySum = 0.0
+        var totalSum = 0.0
+
+        for index in current.indices {
+            let now = current[index]
+            let then = prior[index]
+            guard now.count >= 4, then.count >= 4 else { continue }
+            let user = Double(now[0] &- then[0])
+            let system = Double(now[1] &- then[1])
+            let idle = Double(now[2] &- then[2])
+            let nice = Double(now[3] &- then[3])
+            let total = user + system + idle + nice
+            guard total > 0 else {
+                perCore.append(0)
+                continue
+            }
+            let busy = user + system + nice
+            perCore.append(busy / total * 100.0)
+            busySum += busy
+            totalSum += total
         }
-        let busy = (user + system + nice) / total * 100.0
-        return PerformanceSnapshot(cpuUtilizationPercent: busy)
+
+        let aggregate = totalSum > 0 ? busySum / totalSum * 100.0 : nil
+        return PerformanceSnapshot(
+            cpuUtilizationPercent: aggregate,
+            perCoreCPUUtilizationPercent: perCore.isEmpty ? nil : perCore
+        )
     }
 
-    private static func readCPULoad() -> host_cpu_load_info? {
+    private static func readPerCoreTicks() -> [[UInt32]]? {
         #if canImport(Darwin)
-        var count = mach_msg_type_number_t(
-            MemoryLayout<host_cpu_load_info>.size / MemoryLayout<integer_t>.size
+        var cpuCount: natural_t = 0
+        var infoArray: processor_info_array_t?
+        var infoCount: mach_msg_type_number_t = 0
+        let kr = host_processor_info(
+            mach_host_self(),
+            PROCESSOR_CPU_LOAD_INFO,
+            &cpuCount,
+            &infoArray,
+            &infoCount
         )
-        var info = host_cpu_load_info()
-        let result = withUnsafeMutablePointer(to: &info) { pointer in
-            pointer.withMemoryRebound(to: integer_t.self, capacity: Int(count)) { rebound in
-                host_statistics(mach_host_self(), HOST_CPU_LOAD_INFO, rebound, &count)
-            }
+        guard kr == KERN_SUCCESS, let infoArray, cpuCount > 0 else { return nil }
+        defer {
+            let size = vm_size_t(infoCount) * vm_size_t(MemoryLayout<integer_t>.stride)
+            vm_deallocate(mach_task_self_, vm_address_t(bitPattern: infoArray), size)
         }
-        guard result == KERN_SUCCESS else { return nil }
-        return info
+
+        let states = Int(CPU_STATE_MAX)
+        var cores: [[UInt32]] = []
+        cores.reserveCapacity(Int(cpuCount))
+        for core in 0..<Int(cpuCount) {
+            let base = core * states
+            guard base + 3 < Int(infoCount) else { break }
+            let user = UInt32(bitPattern: infoArray[base + Int(CPU_STATE_USER)])
+            let system = UInt32(bitPattern: infoArray[base + Int(CPU_STATE_SYSTEM)])
+            let idle = UInt32(bitPattern: infoArray[base + Int(CPU_STATE_IDLE)])
+            let nice = UInt32(bitPattern: infoArray[base + Int(CPU_STATE_NICE)])
+            cores.append([user, system, idle, nice])
+        }
+        return cores.isEmpty ? nil : cores
         #else
         return nil
         #endif

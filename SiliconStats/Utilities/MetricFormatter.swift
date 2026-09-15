@@ -41,6 +41,15 @@ public enum MetricFormatter {
         return f
     }()
 
+    private static let memoryNumber: NumberFormatter = {
+        let f = NumberFormatter()
+        f.numberStyle = .decimal
+        f.maximumFractionDigits = 1
+        f.minimumFractionDigits = 0
+        f.roundingMode = .halfUp
+        return f
+    }()
+
     public static func temperature(
         celsius: Double?,
         unit: TemperatureUnit,
@@ -70,19 +79,46 @@ public enum MetricFormatter {
         return fpsNumber.string(from: NSNumber(value: fps)) ?? unavailablePlaceholder
     }
 
-    private static let memoryNumber: NumberFormatter = {
-        let f = NumberFormatter()
-        f.numberStyle = .decimal
-        f.maximumFractionDigits = 1
-        f.minimumFractionDigits = 0
-        f.roundingMode = .halfUp
-        return f
-    }()
-
     /// Formats used memory as `18GB` (never invents a value).
     public static func memoryUsedGigabytes(usedBytes: UInt64?, includeUnit: Bool = true) -> String {
         guard let usedBytes else { return unavailablePlaceholder }
-        let gb = UnitConversion.bytesToGigabytes(usedBytes)
+        return gigabytes(usedBytes, includeUnit: includeUnit)
+    }
+
+    /// Compact memory slice with a one-letter prefix, e.g. `U18.2GB`.
+    public static func memoryLabeledGigabytes(
+        prefix: String,
+        bytes: UInt64?,
+        includeUnit: Bool = true
+    ) -> String {
+        guard let bytes else { return unavailablePlaceholder }
+        return "\(prefix)\(gigabytes(bytes, includeUnit: includeUnit))"
+    }
+
+    /// Used / cached / free for the HUD. Omits any slice that is still `nil`.
+    public static func memoryBreakdown(
+        usedBytes: UInt64?,
+        cachedBytes: UInt64?,
+        freeBytes: UInt64?
+    ) -> [String] {
+        var parts: [String] = []
+        if usedBytes != nil {
+            parts.append(memoryLabeledGigabytes(prefix: "U", bytes: usedBytes))
+        }
+        if cachedBytes != nil {
+            parts.append(memoryLabeledGigabytes(prefix: "C", bytes: cachedBytes))
+        }
+        if freeBytes != nil {
+            parts.append(memoryLabeledGigabytes(prefix: "F", bytes: freeBytes))
+        }
+        if parts.isEmpty {
+            return [unavailablePlaceholder]
+        }
+        return parts
+    }
+
+    private static func gigabytes(_ bytes: UInt64, includeUnit: Bool) -> String {
+        let gb = UnitConversion.bytesToGigabytes(bytes)
         let number = memoryNumber.string(from: NSNumber(value: gb)) ?? unavailablePlaceholder
         return includeUnit ? "\(number)GB" : number
     }

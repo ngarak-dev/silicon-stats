@@ -18,7 +18,7 @@ public struct SettingsView: View {
             AppearanceSettingsView(store: store)
                 .tabItem { Label("Appearance", systemImage: "paintbrush") }
         }
-        .frame(width: 420, height: 360)
+        .frame(width: 440, height: 420)
         .padding(.top, 8)
     }
 }
@@ -80,6 +80,7 @@ struct MetricsSettingsView: View {
                 statusRow("Power source", availability.cpuPower)
                 Toggle("Utilization %", isOn: binding(\.showCPUUtilization))
                 statusRow("Utilization source", availability.cpuUtilization)
+                Toggle("Per-core bars", isOn: binding(\.showPerCoreCPU))
             }
             Section("GPU") {
                 Toggle("Temperature", isOn: binding(\.showGPUTemperature))
@@ -89,12 +90,19 @@ struct MetricsSettingsView: View {
                 Toggle("Utilization %", isOn: binding(\.showGPUUtilization))
             }
             Section("Memory") {
-                Toggle("Show memory used", isOn: binding(\.showMemory))
+                Toggle("Show memory", isOn: binding(\.showMemory))
+                Toggle("Used / cached / free", isOn: binding(\.showMemoryBreakdown))
                 statusRow("Memory source", availability.memory)
             }
             Section("FPS") {
                 Toggle("Show FPS", isOn: binding(\.showFPS))
                 statusRow("FPS source", availability.framesPerSecond)
+            }
+            Section("Private sensors") {
+                Toggle("Enable IOReport °C / W", isOn: binding(\.enablePrivateSensors))
+                Text("Best-effort private API. Still shows -- when channels are missing or unreadable. See Docs/TELEMETRY.md.")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
             }
             Section("Unavailable metrics") {
                 Picker("When missing", selection: binding(\.unavailableDisplay)) {
@@ -103,9 +111,6 @@ struct MetricsSettingsView: View {
                     }
                 }
             }
-            Text("Private IOReport channels are off until validated on Apple Silicon. See Docs/TELEMETRY.md.")
-                .font(.caption)
-                .foregroundStyle(.secondary)
         }
         .padding()
     }

@@ -11,17 +11,25 @@ public final class TelemetryMonitor: ObservableObject {
     @Published public private(set) var availability: MetricAvailability
 
     private let composite: CompositeTelemetryProvider
+    private let ioReportProvider: IOReportTelemetryProvider
     private var timer: Timer?
     private let settingsStore: SettingsStore
     private var settingsCancellable: AnyCancellable?
 
-    public init(settingsStore: SettingsStore, composite: CompositeTelemetryProvider) {
+    public init(
+        settingsStore: SettingsStore,
+        composite: CompositeTelemetryProvider,
+        ioReportProvider: IOReportTelemetryProvider
+    ) {
         self.settingsStore = settingsStore
         self.composite = composite
+        self.ioReportProvider = ioReportProvider
         self.availability = composite.availability
+        syncPrivateSensors()
         settingsCancellable = settingsStore.$settings
             .receive(on: RunLoop.main)
             .sink { [weak self] _ in
+                self?.syncPrivateSensors()
                 self?.restartTimer()
             }
     }
@@ -41,15 +49,22 @@ public final class TelemetryMonitor: ObservableObject {
     }
 
     public func refreshNow() {
+        syncPrivateSensors()
         let sample = composite.refresh()
         snapshot = sample
         availability = composite.availability
     }
 
+    private func syncPrivateSensors() {
+        let enabled = settingsStore.settings.enablePrivateSensors
+        if ioReportProvider.isEnabled != enabled {
+            ioReportProvider.isEnabled = enabled
+        }
+    }
+
     private func restartTimer() {
         timer?.invalidate()
         let interval = max(0.25, Double(settingsStore.settings.telemetryIntervalMilliseconds) / 1000.0)
-        // Timer is scheduled on the main RunLoop; hop explicitly for Swift concurrency.
         let timer = Timer.scheduledTimer(withTimeInterval: interval, repeats: true) { [weak self] _ in
             Task { @MainActor [weak self] in
                 self?.refreshNow()
@@ -62,15 +77,25 @@ public final class TelemetryMonitor: ObservableObject {
 
 /// Factory for production providers — no mock telemetry in release wiring.
 public enum TelemetryBootstrap {
-    public static func makeComposite(enablePrivateIOReport: Bool = false) -> CompositeTelemetryProvider {
+    public struct Bundle {
+        public let composite: CompositeTelemetryProvider
+        public let ioReport: IOReportTelemetryProvider
+    }
+
+    public static func makeBundle(enablePrivateIOReport: Bool = false) -> Bundle {
+        let ioReport = IOReportTelemetryProvider(isEnabled: enablePrivateIOReport)
         let providers: [any TelemetryProvider] = [
             CPULoadTelemetryProvider(),
             MemoryTelemetryProvider(),
             ThermalStateTelemetryProvider(),
-            IOReportTelemetryProvider(isEnabled: enablePrivateIOReport)
+            ioReport
         ]
-        // Prefer DisplayLink for local refresh cadence; ScreenCapture remains stubbed.
         let fps: any FPSProvider = DisplayLinkFPSProvider()
-        return CompositeTelemetryProvider(providers: providers, fpsProvider: fps)
+        let composite = CompositeTelemetryProvider(providers: providers, fpsProvider: fps)
+        return Bundle(composite: composite, ioReport: ioReport)
+    }
+
+    public static func makeComposite(enablePrivateIOReport: Bool = false) -> CompositeTelemetryProvider {
+        makeBundle(enablePrivateIOReport: enablePrivateIOReport).composite
     }
 }

@@ -23,8 +23,14 @@ final class SiliconStatsApp: NSObject, NSApplicationDelegate {
         settingsStore = SettingsStore()
         settingsStore.applyDockIconPreference()
 
-        let composite = TelemetryBootstrap.makeComposite(enablePrivateIOReport: false)
-        monitor = TelemetryMonitor(settingsStore: settingsStore, composite: composite)
+        let bundle = TelemetryBootstrap.makeBundle(
+            enablePrivateIOReport: settingsStore.settings.enablePrivateSensors
+        )
+        monitor = TelemetryMonitor(
+            settingsStore: settingsStore,
+            composite: bundle.composite,
+            ioReportProvider: bundle.ioReport
+        )
         overlay = OverlayPanelController(settingsStore: settingsStore)
 
         constructMenu()
@@ -99,7 +105,7 @@ final class SiliconStatsApp: NSObject, NSApplicationDelegate {
                 let window = NSWindow(contentViewController: hosting)
                 window.title = "Silicon Stats"
                 window.styleMask = [.titled, .closable, .miniaturizable]
-                window.setContentSize(NSSize(width: 440, height: 400))
+                window.setContentSize(NSSize(width: 460, height: 460))
                 window.center()
                 self.settingsWindow = window
             }

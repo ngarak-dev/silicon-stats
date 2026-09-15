@@ -55,12 +55,17 @@ public struct AppSettings: Equatable, Codable, Sendable {
     public var showCPUTemperature: Bool
     public var showCPUPower: Bool
     public var showCPUUtilization: Bool
+    public var showPerCoreCPU: Bool
     public var showGPUTemperature: Bool
     public var showGPUPower: Bool
     public var showGPUUtilization: Bool
     public var showMemory: Bool
+    public var showMemoryBreakdown: Bool
     public var showFPS: Bool
     public var unavailableDisplay: UnavailableMetricDisplay
+
+    /// Attempt private IOReport °C / W sampling (best-effort; still returns nil when channels fail).
+    public var enablePrivateSensors: Bool
 
     // Appearance
     public var overlayOpacity: Double
@@ -72,7 +77,7 @@ public struct AppSettings: Equatable, Codable, Sendable {
     /// Bumped when default metric visibility changes so existing installs migrate once.
     public var settingsSchemaVersion: Int
 
-    public static let currentSchemaVersion = 2
+    public static let currentSchemaVersion = 3
 
     public static let `default` = AppSettings(
         showOverlay: true,
@@ -80,16 +85,19 @@ public struct AppSettings: Equatable, Codable, Sendable {
         showDockIcon: false,
         clickThrough: false,
         telemetryIntervalMilliseconds: 1000,
-        // Public Mach CPU % / memory are real; private IOReport °C/W stay off until validated.
+        // Public Mach CPU % / memory are real; private IOReport °C/W stay off until user enables.
         showCPUTemperature: false,
         showCPUPower: false,
         showCPUUtilization: true,
+        showPerCoreCPU: true,
         showGPUTemperature: false,
         showGPUPower: false,
         showGPUUtilization: false,
         showMemory: true,
+        showMemoryBreakdown: true,
         showFPS: true,
         unavailableDisplay: .hide,
+        enablePrivateSensors: false,
         overlayOpacity: 0.88,
         overlayPosition: .topLeading,
         overlayScale: 1.0,
@@ -100,9 +108,10 @@ public struct AppSettings: Equatable, Codable, Sendable {
 
     enum CodingKeys: String, CodingKey {
         case showOverlay, launchAtLogin, showDockIcon, clickThrough, telemetryIntervalMilliseconds
-        case showCPUTemperature, showCPUPower, showCPUUtilization
+        case showCPUTemperature, showCPUPower, showCPUUtilization, showPerCoreCPU
         case showGPUTemperature, showGPUPower, showGPUUtilization
-        case showMemory, showFPS, unavailableDisplay
+        case showMemory, showMemoryBreakdown, showFPS, unavailableDisplay
+        case enablePrivateSensors
         case overlayOpacity, overlayPosition, overlayScale, temperatureUnit, screenEdgePadding
         case settingsSchemaVersion
     }
@@ -116,12 +125,15 @@ public struct AppSettings: Equatable, Codable, Sendable {
         showCPUTemperature: Bool,
         showCPUPower: Bool,
         showCPUUtilization: Bool,
+        showPerCoreCPU: Bool,
         showGPUTemperature: Bool,
         showGPUPower: Bool,
         showGPUUtilization: Bool,
         showMemory: Bool,
+        showMemoryBreakdown: Bool,
         showFPS: Bool,
         unavailableDisplay: UnavailableMetricDisplay,
+        enablePrivateSensors: Bool,
         overlayOpacity: Double,
         overlayPosition: OverlayPosition,
         overlayScale: Double,
@@ -137,12 +149,15 @@ public struct AppSettings: Equatable, Codable, Sendable {
         self.showCPUTemperature = showCPUTemperature
         self.showCPUPower = showCPUPower
         self.showCPUUtilization = showCPUUtilization
+        self.showPerCoreCPU = showPerCoreCPU
         self.showGPUTemperature = showGPUTemperature
         self.showGPUPower = showGPUPower
         self.showGPUUtilization = showGPUUtilization
         self.showMemory = showMemory
+        self.showMemoryBreakdown = showMemoryBreakdown
         self.showFPS = showFPS
         self.unavailableDisplay = unavailableDisplay
+        self.enablePrivateSensors = enablePrivateSensors
         self.overlayOpacity = overlayOpacity
         self.overlayPosition = overlayPosition
         self.overlayScale = overlayScale
@@ -161,12 +176,15 @@ public struct AppSettings: Equatable, Codable, Sendable {
         showCPUTemperature = try container.decodeIfPresent(Bool.self, forKey: .showCPUTemperature) ?? false
         showCPUPower = try container.decodeIfPresent(Bool.self, forKey: .showCPUPower) ?? false
         showCPUUtilization = try container.decodeIfPresent(Bool.self, forKey: .showCPUUtilization) ?? true
+        showPerCoreCPU = try container.decodeIfPresent(Bool.self, forKey: .showPerCoreCPU) ?? true
         showGPUTemperature = try container.decodeIfPresent(Bool.self, forKey: .showGPUTemperature) ?? false
         showGPUPower = try container.decodeIfPresent(Bool.self, forKey: .showGPUPower) ?? false
         showGPUUtilization = try container.decodeIfPresent(Bool.self, forKey: .showGPUUtilization) ?? false
         showMemory = try container.decodeIfPresent(Bool.self, forKey: .showMemory) ?? true
+        showMemoryBreakdown = try container.decodeIfPresent(Bool.self, forKey: .showMemoryBreakdown) ?? true
         showFPS = try container.decodeIfPresent(Bool.self, forKey: .showFPS) ?? true
         unavailableDisplay = try container.decodeIfPresent(UnavailableMetricDisplay.self, forKey: .unavailableDisplay) ?? .hide
+        enablePrivateSensors = try container.decodeIfPresent(Bool.self, forKey: .enablePrivateSensors) ?? false
         overlayOpacity = try container.decodeIfPresent(Double.self, forKey: .overlayOpacity) ?? 0.88
         overlayPosition = try container.decodeIfPresent(OverlayPosition.self, forKey: .overlayPosition) ?? .topLeading
         overlayScale = try container.decodeIfPresent(Double.self, forKey: .overlayScale) ?? 1.0
@@ -185,12 +203,15 @@ public struct AppSettings: Equatable, Codable, Sendable {
         try container.encode(showCPUTemperature, forKey: .showCPUTemperature)
         try container.encode(showCPUPower, forKey: .showCPUPower)
         try container.encode(showCPUUtilization, forKey: .showCPUUtilization)
+        try container.encode(showPerCoreCPU, forKey: .showPerCoreCPU)
         try container.encode(showGPUTemperature, forKey: .showGPUTemperature)
         try container.encode(showGPUPower, forKey: .showGPUPower)
         try container.encode(showGPUUtilization, forKey: .showGPUUtilization)
         try container.encode(showMemory, forKey: .showMemory)
+        try container.encode(showMemoryBreakdown, forKey: .showMemoryBreakdown)
         try container.encode(showFPS, forKey: .showFPS)
         try container.encode(unavailableDisplay, forKey: .unavailableDisplay)
+        try container.encode(enablePrivateSensors, forKey: .enablePrivateSensors)
         try container.encode(overlayOpacity, forKey: .overlayOpacity)
         try container.encode(overlayPosition, forKey: .overlayPosition)
         try container.encode(overlayScale, forKey: .overlayScale)
@@ -199,7 +220,7 @@ public struct AppSettings: Equatable, Codable, Sendable {
         try container.encode(settingsSchemaVersion, forKey: .settingsSchemaVersion)
     }
 
-    /// One-time migration onto schema v2: prefer public Mach metrics over gated °C/W.
+    /// Incremental migrations: v2 Mach defaults, v3 per-core + memory breakdown.
     public mutating func migrateIfNeeded() {
         guard settingsSchemaVersion < AppSettings.currentSchemaVersion else { return }
         if settingsSchemaVersion < 2 {
@@ -211,6 +232,10 @@ public struct AppSettings: Equatable, Codable, Sendable {
             showGPUPower = false
             showGPUUtilization = false
             unavailableDisplay = .hide
+        }
+        if settingsSchemaVersion < 3 {
+            showPerCoreCPU = true
+            showMemoryBreakdown = true
         }
         settingsSchemaVersion = AppSettings.currentSchemaVersion
     }

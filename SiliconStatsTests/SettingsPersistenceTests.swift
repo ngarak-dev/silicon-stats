@@ -46,4 +46,23 @@ final class SettingsPersistenceTests: XCTestCase {
         XCTAssertNil(suite.data(forKey: SettingsStore.defaultsKey))
         XCTAssertEqual(store.settings, .default)
     }
+
+    func testSchemaV3MigrationEnablesPerCoreAndMemoryBreakdown() throws {
+        let suiteName = "SiliconStatsTests.\(UUID().uuidString)"
+        let suite = UserDefaults(suiteName: suiteName)!
+        defer { suite.removePersistentDomain(forName: suiteName) }
+
+        var legacy = AppSettings.default
+        legacy.settingsSchemaVersion = 2
+        legacy.showPerCoreCPU = false
+        legacy.showMemoryBreakdown = false
+        let data = try JSONEncoder().encode(legacy)
+        suite.set(data, forKey: SettingsStore.defaultsKey)
+
+        let store = SettingsStore(defaults: suite)
+        XCTAssertEqual(store.settings.settingsSchemaVersion, AppSettings.currentSchemaVersion)
+        XCTAssertTrue(store.settings.showPerCoreCPU)
+        XCTAssertTrue(store.settings.showMemoryBreakdown)
+        XCTAssertFalse(store.settings.enablePrivateSensors)
+    }
 }
