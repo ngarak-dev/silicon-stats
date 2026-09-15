@@ -70,6 +70,23 @@ public enum MetricFormatter {
         return fpsNumber.string(from: NSNumber(value: fps)) ?? unavailablePlaceholder
     }
 
+    private static let memoryNumber: NumberFormatter = {
+        let f = NumberFormatter()
+        f.numberStyle = .decimal
+        f.maximumFractionDigits = 1
+        f.minimumFractionDigits = 0
+        f.roundingMode = .halfUp
+        return f
+    }()
+
+    /// Formats used memory as `18GB` (never invents a value).
+    public static func memoryUsedGigabytes(usedBytes: UInt64?, includeUnit: Bool = true) -> String {
+        guard let usedBytes else { return unavailablePlaceholder }
+        let gb = UnitConversion.bytesToGigabytes(usedBytes)
+        let number = memoryNumber.string(from: NSNumber(value: gb)) ?? unavailablePlaceholder
+        return includeUnit ? "\(number)GB" : number
+    }
+
     /// Splits a power string into numeric body + unit suffix for mixed-size typography.
     public static func powerParts(_ watts: Double?) -> (value: String, unit: String) {
         guard watts != nil else { return (unavailablePlaceholder, "") }

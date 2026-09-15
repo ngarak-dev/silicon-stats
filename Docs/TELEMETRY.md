@@ -9,13 +9,13 @@ This cloud/Linux environment cannot compile or validate macOS binaries. Treat ha
 | Metric | Provider | API surface | Status in this build | Notes |
 |---|---|---|---|---|
 | CPU utilization % | `CPULoadTelemetryProvider` | Public Mach `host_statistics` / `HOST_CPU_LOAD_INFO` | **Implemented** (logic present; unverified on device in CI) | Idle/busy tick deltas |
-| Memory used/total | `MemoryTelemetryProvider` | Public Mach `host_statistics64` / `HOST_VM_INFO64` | **Implemented** (unverified on device in CI) | Not shown on pill by default |
+| Memory used/total | `MemoryTelemetryProvider` | Public Mach `host_statistics64` / `HOST_VM_INFO64` | **Implemented** (unverified on device in CI) | Shown on pill as **MEM** by default |
 | Thermal state | `ThermalStateTelemetryProvider` | Public `ProcessInfo.thermalState` | **Implemented** — qualitative only | Does **not** map to °C |
-| CPU temperature °C | `IOReportTelemetryProvider` | Private IOReport energy/temp channels | **Stubbed / gated** (`isEnabled=false`) | Returns `nil` → `--` |
-| CPU power W | `IOReportTelemetryProvider` | Private IOReport Energy Model | **Stubbed / gated** | Returns `nil` → `--` |
-| GPU temperature °C | `IOReportTelemetryProvider` | Private IOReport GPU Stats | **Stubbed / gated** | Returns `nil` → `--` |
-| GPU power W | `IOReportTelemetryProvider` | Private IOReport Energy Model | **Stubbed / gated** | Returns `nil` → `--` |
-| GPU utilization % | `IOReportTelemetryProvider` | Private IOReport | **Stubbed / gated** | Returns `nil` → `--` |
+| CPU temperature °C | `IOReportTelemetryProvider` | Private IOReport energy/temp channels | **Stubbed / gated** (`isEnabled=false`) | Off by default; enable in Settings → Metrics |
+| CPU power W | `IOReportTelemetryProvider` | Private IOReport Energy Model | **Stubbed / gated** | Off by default |
+| GPU temperature °C | `IOReportTelemetryProvider` | Private IOReport GPU Stats | **Stubbed / gated** | Off by default (hidden when unavailable) |
+| GPU power W | `IOReportTelemetryProvider` | Private IOReport Energy Model | **Stubbed / gated** | Off by default |
+| GPU utilization % | `IOReportTelemetryProvider` | Private IOReport | **Stubbed / gated** | Off by default |
 | Package power W | `IOReportTelemetryProvider` | Private IOReport | **Stubbed / gated** | Returns `nil` → `--` |
 | FPS (HUD) | `DisplayLinkFPSProvider` | Public `CVDisplayLink` | **Implemented** as *local display-link cadence* | **Not** other-apps' game FPS |
 | Display Hz | `DisplayLinkFPSProvider` | `CVDisplayLinkGetNominalOutputVideoRefreshPeriod` | **Implemented** | Separate from game FPS |
@@ -51,3 +51,12 @@ The reference HUD shows an **FPS** value. Public macOS APIs do not expose anothe
 ## Production wiring
 
 `TelemetryBootstrap.makeComposite(enablePrivateIOReport: false)` is what `SiliconStatsApp` uses. No mock telemetry is connected in the app target.
+
+## Default HUD (schema v2)
+
+The overlay shows **CPU % · MEM · FPS** by default (public Mach + DisplayLink). CPU/GPU °C and W stay off until private IOReport sampling is validated, so the pill no longer fills with `--` for metrics we cannot read yet.
+
+## Default HUD (schema v2)
+
+The pill shows **CPU % · MEM · FPS** by default — metrics available from public Mach / DisplayLink APIs. GPU °C/W and CPU °C/W remain available in Settings but stay off until private IOReport sampling is validated, so the overlay no longer fills with `--`.
+

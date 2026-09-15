@@ -28,6 +28,8 @@ public final class TelemetryMonitor: ObservableObject {
 
     public func start() {
         composite.start()
+        // CPU load needs two samples; take a priming read then a real refresh.
+        _ = composite.refresh()
         restartTimer()
         refreshNow()
     }

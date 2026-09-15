@@ -52,12 +52,12 @@ Docs/TELEMETRY.md           Real vs stubbed metrics + private API notes
 
 ## Metrics honesty
 
-| Shown on pill | Source in this build |
+| Shown on pill (default) | Source in this build |
 |---|---|
-| CPU °C / W | Private IOReport path **gated off** → `--` until validated |
-| GPU °C / W | Same → `--` |
-| FPS | `CVDisplayLink` local cadence when running on macOS; not other-apps' game FPS |
-| CPU % / memory | Implemented via public Mach APIs (optional in Metrics settings) |
+| CPU % | Public Mach host CPU load — **live** |
+| MEM | Public Mach VM stats — **live** |
+| FPS | `CVDisplayLink` local cadence when running on macOS (not other-apps' game FPS) |
+| CPU/GPU °C / W | Private IOReport path **off by default** (enable in Settings; still gated until validated) |
 
 Details: [`Docs/TELEMETRY.md`](Docs/TELEMETRY.md).
 

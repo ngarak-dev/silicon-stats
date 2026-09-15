@@ -22,7 +22,13 @@ public final class SettingsStore: ObservableObject {
         self.defaults = defaults
         if let data = defaults.data(forKey: Self.defaultsKey),
            let decoded = try? decoder.decode(AppSettings.self, from: data) {
-            self.settings = decoded
+            var migrated = decoded
+            migrated.migrateIfNeeded()
+            self.settings = migrated
+            // Persist migration immediately so next launch is stable.
+            if migrated != decoded, let encoded = try? encoder.encode(migrated) {
+                defaults.set(encoded, forKey: Self.defaultsKey)
+            }
         } else {
             self.settings = .default
         }

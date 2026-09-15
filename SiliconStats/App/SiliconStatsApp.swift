@@ -60,11 +60,18 @@ final class SiliconStatsApp: NSObject, NSApplicationDelegate {
     private func constructMenu() {
         let item = NSStatusBar.system.statusItem(withLength: NSStatusItem.variableLength)
         if let button = item.button {
-            button.image = NSImage(
-                systemSymbolName: "chip",
-                accessibilityDescription: "Silicon Stats"
-            )
-            button.image?.isTemplate = true
+            if let icon = NSImage(named: "MenuBarIcon") {
+                icon.isTemplate = true
+                icon.size = NSSize(width: 18, height: 18)
+                button.image = icon
+            } else {
+                button.image = NSImage(
+                    systemSymbolName: "chip",
+                    accessibilityDescription: "Silicon Stats"
+                )
+                button.image?.isTemplate = true
+            }
+            button.toolTip = "Silicon Stats"
         }
 
         let menu = NSMenu()

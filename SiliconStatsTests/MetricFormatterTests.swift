@@ -35,4 +35,10 @@ final class MetricFormatterTests: XCTestCase {
         XCTAssertEqual(MetricFormatter.framesPerSecond(.nan), "--")
         XCTAssertEqual(MetricFormatter.framesPerSecond(-1), "--")
     }
+
+    func testMemoryFormatting() {
+        XCTAssertEqual(MetricFormatter.memoryUsedGigabytes(usedBytes: nil), "--")
+        XCTAssertEqual(MetricFormatter.memoryUsedGigabytes(usedBytes: 1_073_741_824), "1GB")
+        XCTAssertEqual(MetricFormatter.memoryUsedGigabytes(usedBytes: 18_874_368_000), "17.6GB")
+    }
 }

@@ -88,6 +88,10 @@ struct MetricsSettingsView: View {
                 statusRow("Power source", availability.gpuPower)
                 Toggle("Utilization %", isOn: binding(\.showGPUUtilization))
             }
+            Section("Memory") {
+                Toggle("Show memory used", isOn: binding(\.showMemory))
+                statusRow("Memory source", availability.memory)
+            }
             Section("FPS") {
                 Toggle("Show FPS", isOn: binding(\.showFPS))
                 statusRow("FPS source", availability.framesPerSecond)

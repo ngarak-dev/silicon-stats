@@ -4,12 +4,13 @@ import SwiftUI
 public enum OverlayPalette {
     public static let cpuLabel = Color(red: 0.35, green: 0.62, blue: 0.95)      // blue
     public static let gpuLabel = Color(red: 0.72, green: 0.82, blue: 0.86)      // cyan-gray
+    public static let memLabel = Color(red: 0.78, green: 0.72, blue: 0.92)      // soft violet
     public static let fpsLabel = Color(red: 0.40, green: 0.86, blue: 0.62)      // mint green
     public static let value = Color.white
     public static let pillFill = Color.black
 }
 
-/// Single metric cluster: colored label + white values (e.g. `CPU 71°C 76W`).
+/// Single metric cluster: colored label + white values (e.g. `CPU 42%`).
 public struct MetricGroupView: View {
     public let label: String
     public let labelColor: Color
@@ -37,16 +38,13 @@ public struct MetricGroupView: View {
 
     @ViewBuilder
     private func valueText(_ raw: String) -> some View {
-        // Slightly smaller unit suffixes for W / °C / °F to match the reference.
+        // Slightly smaller unit suffixes for W / % / GB / °C / °F.
         if raw.hasSuffix("W"), raw.count > 1, raw != MetricFormatter.unavailablePlaceholder {
-            let number = String(raw.dropLast())
-            HStack(alignment: .firstTextBaseline, spacing: 0) {
-                Text(number)
-                    .font(.system(size: 13 * scale, weight: .medium, design: .rounded))
-                Text("W")
-                    .font(.system(size: 10 * scale, weight: .medium, design: .rounded))
-            }
-            .foregroundStyle(OverlayPalette.value)
+            mixedUnit(String(raw.dropLast()), unit: "W")
+        } else if raw.hasSuffix("%"), raw.count > 1, raw != MetricFormatter.unavailablePlaceholder {
+            mixedUnit(String(raw.dropLast()), unit: "%")
+        } else if raw.hasSuffix("GB"), raw.count > 2, raw != MetricFormatter.unavailablePlaceholder {
+            mixedUnit(String(raw.dropLast(2)), unit: "GB")
         } else if raw.hasSuffix("°C") || raw.hasSuffix("°F") {
             Text(raw)
                 .font(.system(size: 13 * scale, weight: .medium, design: .rounded))
@@ -57,9 +55,19 @@ public struct MetricGroupView: View {
                 .foregroundStyle(OverlayPalette.value)
         }
     }
+
+    private func mixedUnit(_ number: String, unit: String) -> some View {
+        HStack(alignment: .firstTextBaseline, spacing: 0) {
+            Text(number)
+                .font(.system(size: 13 * scale, weight: .medium, design: .rounded))
+            Text(unit)
+                .font(.system(size: 10 * scale, weight: .medium, design: .rounded))
+        }
+        .foregroundStyle(OverlayPalette.value)
+    }
 }
 
-/// Horizontal black pill HUD: CPU · GPU · FPS.
+/// Horizontal black pill HUD: CPU · MEM · GPU · FPS (groups hide when empty).
 public struct OverlayContentView: View {
     public let snapshot: PerformanceSnapshot
     public let settings: AppSettings
@@ -76,6 +84,14 @@ public struct OverlayContentView: View {
                     label: "CPU",
                     labelColor: OverlayPalette.cpuLabel,
                     values: cpuValues,
+                    scale: settings.overlayScale
+                )
+            }
+            if showMemory {
+                MetricGroupView(
+                    label: "MEM",
+                    labelColor: OverlayPalette.memLabel,
+                    values: memoryValues,
                     scale: settings.overlayScale
                 )
             }
@@ -105,21 +121,34 @@ public struct OverlayContentView: View {
     }
 
     private var showCPU: Bool {
-        let values = cpuValues
-        if settings.unavailableDisplay == .hide,
-           values.allSatisfy({ $0 == MetricFormatter.unavailablePlaceholder }) {
+        guard settings.showCPUTemperature || settings.showCPUPower || settings.showCPUUtilization else {
             return false
         }
-        return settings.showCPUTemperature || settings.showCPUPower || settings.showCPUUtilization
+        if settings.unavailableDisplay == .hide,
+           cpuValues.allSatisfy({ $0 == MetricFormatter.unavailablePlaceholder }) {
+            return false
+        }
+        return true
+    }
+
+    private var showMemory: Bool {
+        guard settings.showMemory else { return false }
+        if settings.unavailableDisplay == .hide,
+           memoryValues.allSatisfy({ $0 == MetricFormatter.unavailablePlaceholder }) {
+            return false
+        }
+        return true
     }
 
     private var showGPU: Bool {
-        let values = gpuValues
-        if settings.unavailableDisplay == .hide,
-           values.allSatisfy({ $0 == MetricFormatter.unavailablePlaceholder }) {
+        guard settings.showGPUTemperature || settings.showGPUPower || settings.showGPUUtilization else {
             return false
         }
-        return settings.showGPUTemperature || settings.showGPUPower || settings.showGPUUtilization
+        if settings.unavailableDisplay == .hide,
+           gpuValues.allSatisfy({ $0 == MetricFormatter.unavailablePlaceholder }) {
+            return false
+        }
+        return true
     }
 
     private var showFPS: Bool {
@@ -149,6 +178,10 @@ public struct OverlayContentView: View {
         return parts
     }
 
+    private var memoryValues: [String] {
+        [MetricFormatter.memoryUsedGigabytes(usedBytes: snapshot.memoryUsedBytes)]
+    }
+
     private var gpuValues: [String] {
         var parts: [String] = []
         if settings.showGPUTemperature {
@@ -169,7 +202,21 @@ public struct OverlayContentView: View {
     }
 }
 
-#Preview("HUD Reference") {
+#Preview("HUD Live Defaults") {
+    OverlayContentView(
+        snapshot: PerformanceSnapshot(
+            cpuUtilizationPercent: 42,
+            memoryUsedBytes: 18_000_000_000,
+            memoryTotalBytes: 36_000_000_000,
+            framesPerSecond: 120
+        ),
+        settings: .default
+    )
+    .padding(40)
+    .background(Color.gray.opacity(0.3))
+}
+
+#Preview("HUD Reference Temps") {
     OverlayContentView(
         snapshot: PerformanceSnapshot(
             cpuTemperatureCelsius: 71,
@@ -178,14 +225,18 @@ public struct OverlayContentView: View {
             gpuPowerWatts: 299,
             framesPerSecond: 66
         ),
-        settings: .default
+        settings: {
+            var s = AppSettings.default
+            s.showCPUTemperature = true
+            s.showCPUPower = true
+            s.showCPUUtilization = false
+            s.showGPUTemperature = true
+            s.showGPUPower = true
+            s.showMemory = false
+            s.unavailableDisplay = .placeholder
+            return s
+        }()
     )
     .padding(40)
     .background(Color.gray.opacity(0.3))
-}
-
-#Preview("Unavailable") {
-    OverlayContentView(snapshot: .empty, settings: .default)
-        .padding(40)
-        .background(Color.gray.opacity(0.3))
 }
